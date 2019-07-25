@@ -26,7 +26,7 @@ class CrawlerDb:
 
 		# Create the tables
 		self.metadata.create_all(self.engine)
-		
+
 	def enqueue(self, url, emails = None):
 		if not self.connected:
 			return False
@@ -47,8 +47,8 @@ class CrawlerDb:
 		if result:
 			return True
 		return False
-		
-		
+
+
 	def dequeue(self):
 		if not self.connected:
 			return False
@@ -67,8 +67,8 @@ class CrawlerDb:
 			# print result[0].url
 			return result[0]
 		return False
-		
-		
+
+
 	def crawled(self, website, new_emails=None):
 		if not self.connected:
 			return False
@@ -77,6 +77,28 @@ class CrawlerDb:
 			.values(has_crawled=True, emails=new_emails)
 		self.connection.execute(stmt)
 
+	def get_all_emails_and_domains(self):
+		if not self.connected:
+			return None
+
+		s = select([self.website_table])
+		res = self.connection.execute(s)
+		results = res.fetchall()
+		res.close()
+		email_set = set()
+		for result in results:
+			if (result.emails == None or result.url == None or result.emails == ''):
+				continue
+			url = urlparse.urlparse(result.url)
+			# hostname = url.hostname.split(".")
+			# Simplistic assumeption of a domain. If 2nd last name is <4 char, then it has 3 parts eg. just2us.com.sg
+			# hostname = ".".join(len(hostname[-2]) < 4 and hostname[-3:] or hostname[-2:])
+			# email_set.add(hostname + ",\"" + result.emails + "\"")
+
+			# added by chris
+			email_set.add("\"" + url.hostname + "\",\"" + result.emails + "\"")
+
+		return email_set
 
 	def get_all_emails(self):
 		if not self.connected:
@@ -118,7 +140,7 @@ class CrawlerDb:
 
 	def close(self):
 		self.connection.close()
-		
+
 
 	def save_html(filename, html):
 		filename = os.path.join(HTML_DIR, filename)
@@ -140,7 +162,7 @@ class CrawlerDb:
 		c.crawled(website, "a,b")
 		print '---'
 		c.dequeue()
-	
-	
+
+
 # CrawlerDb().test()
 
