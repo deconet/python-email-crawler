@@ -31,6 +31,4 @@ pip-log.txt
 .mr.developer.cfg
 
 docs/_build/
-crawler.sqlite
 pycrawler.log
-emails.csv
