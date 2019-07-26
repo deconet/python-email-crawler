@@ -5,6 +5,7 @@ import re, urlparse
 import traceback
 from database import CrawlerDb
 import json
+from HTMLParser import HTMLParser
 
 # Debugging
 # import pdb;pdb.set_trace()
@@ -76,7 +77,7 @@ def crawl():
 
 
 	# step 1 - read all urls from json file
-	with open('out.json') as json_file:
+	with open('out-webdevs.json') as json_file:
 		data = json.load(json_file)
 		for p in data:
 			print('Name: ' + p['name'])
@@ -180,7 +181,7 @@ def find_emails_in_html(html):
 		bad_extensions = ['.jpg', '.png', '.gif', 'jpeg']
 		if last_four_chars in bad_extensions:
 			continue # skip this one, it's likely an image like 762x762_r-500x383@2x.jpg
-		email_set.add(email)
+		email_set.add(unicode(email))
 
 	return email_set
 
@@ -206,8 +207,19 @@ def find_links_in_html_with_same_hostname(url, html):
 				if link.find(url.netloc) and not link.find("/" + url.netloc): # filter against stuff like https://i1.wp.com/www.blairsammons.com/wp-content/uploads/2017/12/Blair_sammonsLogo.png
 					link_set.add(link)
 			elif link.startswith("mailto"):
-				email_set.add(unicode(link[7:]))
-				logger.info("Found email in mailto link: %s" % link[7:])
+				email_address = link[7:]
+				if email_address.find("?") != -1:
+					logger.info("Found ? in email address %s" % email_address)
+					email_address = email_address[0:email_address.find("?")]
+				if email_address.find("&#064") != -1:
+					# we need to decode this.  &#064 is the @ symbol.
+					logger.info("Found &#064 in email address %s" % email_address)
+					email_address = HTMLParser().unescape(email_address)
+
+				logger.info("Found email in mailto link: %s" % email_address)
+				if len(email_address) > 0:
+					email_set.add(unicode(email_address))
+					logger.info("Adding email %s to list" % email_address)
 			elif link.startswith("#"):
 				continue
 			else:
