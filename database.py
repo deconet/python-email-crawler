@@ -22,12 +22,13 @@ class CrawlerDb:
 			Column('url', Unicode, nullable=False),
 			Column('has_crawled', Boolean, default=False),
 			Column('emails', Unicode, nullable=True),
+			Column('agency_name', Unicode, nullable=True)
 		)
 
 		# Create the tables
 		self.metadata.create_all(self.engine)
 
-	def enqueue(self, url, emails = None):
+	def enqueue(self, url, agency_name, emails = None):
 		if not self.connected:
 			return False
 
@@ -40,9 +41,9 @@ class CrawlerDb:
 # 			print 'Duplicated: %s' % url
 			return False
 
-		args = [{'url':unicode(url)}]
+		args = [{'url':unicode(url), 'agency_name': unicode(agency_name)}]
 		if (emails != None):
-			args = [{'url':unicode(url), 'has_crawled':True, 'emails':unicode(",".join(emails))}]
+			args = [{'url':unicode(url), 'agency_name': unicode(agency_name), 'has_crawled':True, 'emails':unicode(",".join(emails))}]
 		result = self.connection.execute(self.website_table.insert(), args)
 		if result:
 			return True
@@ -96,7 +97,7 @@ class CrawlerDb:
 			# email_set.add(hostname + ",\"" + result.emails + "\"")
 
 			# added by chris
-			email_set.add("\"" + url.hostname + "\",\"" + result.emails + "\"")
+			email_set.add("\"" + result.agency_name + "\",\"" + url.hostname + "\",\"" + result.emails + "\"")
 
 		return email_set
 

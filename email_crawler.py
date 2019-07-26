@@ -77,14 +77,15 @@ def crawl():
 
 
 	# step 1 - read all urls from json file
-	with open('out-webdevs.json') as json_file:
+	with open('out-marketing.json') as json_file:
 		data = json.load(json_file)
 		for p in data:
 			print('Name: ' + p['name'])
 			url = p['company_website_url']
+			agency_name = p['name']
 			print('Website: ' + url)
 			print('')
-			db.enqueue(unicode(url))
+			db.enqueue(unicode(url), agency_name)
 
 
 	# Step 2: Crawl each of the search result
@@ -94,7 +95,7 @@ def crawl():
 		uncrawled = db.dequeue()
 		if (uncrawled == False):
 			break
-		email_set = find_emails_2_level_deep(uncrawled.url)
+		email_set = find_emails_2_level_deep(uncrawled.url, uncrawled.agency_name)
 		logger.info("email_set is %s" % email_set)
 		if (len(email_set) > 0):
 			logger.info("marking as crawled with email_set %s" % ",".join(list(email_set)))
@@ -132,7 +133,7 @@ def retrieve_html(url):
 	return str(data)
 
 
-def find_emails_2_level_deep(url):
+def find_emails_2_level_deep(url, agency_name):
 	"""
 	Find the email at level 1.
 	If there is an email, good. Return that email
@@ -165,7 +166,7 @@ def find_emails_2_level_deep(url):
 			if (html == None):
 				continue
 			email_set = find_emails_in_html(html)
-			db.enqueue(unicode(link), list(email_set))
+			db.enqueue(unicode(link), agency_name, list(email_set))
 
 		# We return a possibly empty set
 		logger.info("returning mailto email set is %s" % mailto_email_set)
@@ -246,7 +247,7 @@ if __name__ == "__main__":
 				emails = db.get_all_emails_and_domains()
 				logger.info("There are %d emails and domains" % len(emails))
 				file = open(EMAILS_FILENAME, "w+")
-				file.write("website,emails\n")
+				file.write("agency name,website,emails\n")
 				file.writelines("\n".join(emails))
 				file.close()
 				logger.info("All emails saved to ./data/emails.csv")
