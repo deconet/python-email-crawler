@@ -76,16 +76,16 @@ def crawl():
 	# 		db.enqueue(unicode(url))
 
 
-	# step 1 - read all urls from json file
-	with open('out-marketing.json') as json_file:
-		data = json.load(json_file)
-		for p in data:
-			print('Name: ' + p['name'])
-			url = p['company_website_url']
-			agency_name = p['name']
-			print('Website: ' + url)
-			print('')
-			db.enqueue(unicode(url), agency_name)
+	# # step 1 - read all urls from json file
+	# with open('out-marketing.json') as json_file:
+	# 	data = json.load(json_file)
+	# 	for p in data:
+	# 		print('Name: ' + p['name'])
+	# 		url = p['company_website_url']
+	# 		agency_name = p['name']
+	# 		print('Website: ' + url)
+	# 		print('')
+	# 		db.enqueue(unicode(url), agency_name)
 
 
 	# Step 2: Crawl each of the search result
@@ -117,7 +117,11 @@ def retrieve_html(url):
 		logger.info("Crawling %s" % url)
 		request = urllib2.urlopen(req)
 	except urllib2.URLError, e:
-		logger.error("Exception at url: %s\n%s" % (url, e))
+		try:
+			logger.error("Exception at url: %s\n%s" % (url, e))
+		except UnicodeDecodeError, e:
+			logger.error("UnicodeDecodeError exception trying to print url")
+			return
 	except urllib2.HTTPError, e:
 		status = e.code
 	except Exception, e:
@@ -126,11 +130,11 @@ def retrieve_html(url):
 		status = 200
 
 	try:
-		data = request.read()
+		data = str(request.read())
 	except Exception, e:
 		return
 
-	return str(data)
+	return data
 
 
 def find_emails_2_level_deep(url, agency_name):
