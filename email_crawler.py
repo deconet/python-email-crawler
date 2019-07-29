@@ -77,15 +77,15 @@ def crawl():
 
 
 	# # step 1 - read all urls from json file
-	# with open('out-marketing.json') as json_file:
-	# 	data = json.load(json_file)
-	# 	for p in data:
-	# 		print('Name: ' + p['name'])
-	# 		url = p['company_website_url']
-	# 		agency_name = p['name']
-	# 		print('Website: ' + url)
-	# 		print('')
-	# 		db.enqueue(unicode(url), agency_name)
+	with open('out-mobile.json') as json_file:
+		data = json.load(json_file)
+		for p in data:
+			print('Name: ' + p['name'])
+			url = p['company_website_url']
+			agency_name = p['name']
+			print('Website: ' + url)
+			print('')
+			db.enqueue(unicode(url), agency_name)
 
 
 	# Step 2: Crawl each of the search result
