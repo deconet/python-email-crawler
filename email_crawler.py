@@ -77,7 +77,7 @@ def crawl():
 
 
 	# # step 1 - read all urls from json file
-	with open('out-mobile.json') as json_file:
+	with open('out-webdev.json') as json_file:
 		data = json.load(json_file)
 		for p in data:
 			print('Name: ' + p['name'])
