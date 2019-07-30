@@ -255,7 +255,7 @@ if __name__ == "__main__":
 				logger.info("There are %d emails and domains" % len(emails))
 				file = open(EMAILS_FILENAME, "w+")
 				file.write("agency name,website,emails\n")
-				file.writelines(str("\n".join(emails)))
+				file.writelines("\n".join(emails).encode('utf-8'))
 				file.close()
 				logger.info("All emails saved to ./data/emails.csv")
 				logger.info("="*40)
