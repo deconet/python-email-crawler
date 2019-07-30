@@ -77,7 +77,7 @@ def crawl():
 
 
 	# # step 1 - read all urls from json file
-	with open('out-webdev.json') as json_file:
+	with open('out-marketing.json') as json_file:
 		data = json.load(json_file)
 		for p in data:
 			print('Name: ' + p['name'])
@@ -206,6 +206,9 @@ def find_links_in_html_with_same_hostname(url, html):
 			continue
 		try:
 			link = str(link)
+			if link.endswith(".mp4"): # skip links to mp4's, lol.
+				continue
+
 			if link.startswith("/") and not link.startswith("//"):
 				link_set.add('http://'+url.netloc+link)
 			elif link.startswith("http") or link.startswith("https"):
